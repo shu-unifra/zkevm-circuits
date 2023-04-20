@@ -309,7 +309,7 @@ struct GethExecStepInternal {
     depth: u16,
     error: Option<String>,
     // stack is in hex 0x prefixed
-    stack: Vec<DebugU256>,
+    stack: Option<Vec<DebugU256>>,
     // memory is in chunks of 32 bytes, in hex
     #[serde(default)]
     memory: Vec<DebugU256>,
@@ -331,6 +331,7 @@ pub struct GethExecStep {
     pub depth: u16,
     pub error: Option<String>,
     // stack is in hex 0x prefixed
+    
     pub stack: Stack,
     // memory is in chunks of 32 bytes, in hex
     pub memory: Memory,
@@ -378,7 +379,7 @@ impl<'de> Deserialize<'de> for GethExecStep {
     where
         D: serde::Deserializer<'de>,
     {
-        let s = GethExecStepInternal::deserialize(deserializer)?;
+        let s: GethExecStepInternal = GethExecStepInternal::deserialize(deserializer)?;
         Ok(Self {
             pc: s.pc,
             op: s.op,
@@ -387,7 +388,17 @@ impl<'de> Deserialize<'de> for GethExecStep {
             gas_cost: s.gas_cost,
             depth: s.depth,
             error: s.error,
-            stack: Stack(s.stack.iter().map(|dw| dw.to_word()).collect::<Vec<Word>>()),
+            stack: if let Some(stack) = s.stack {
+              Stack(stack.iter().map(|dw| dw.to_word()).collect::<Vec<Word>>())
+          } else {
+              Stack(Vec::new())
+          },
+            //stack:Stack(s.stack.iter().map(|dw| dw.to_word()).collect::<Vec<Word>>()),
+            // stack: if s.stack.is_empty() {
+            //   Stack(Vec::new())
+            // } else{
+            //   Stack(s.stack.iter().map(|dw| dw.to_word()).collect::<Vec<Word>>())
+            // },
             memory: Memory::from(
                 s.memory
                     .iter()

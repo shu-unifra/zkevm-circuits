@@ -2679,6 +2679,7 @@ dependencies = [
  "lazy_static",
  "log",
  "mock",
+ "mpt-zktrie",
  "paste",
  "pretty_assertions",
  "rand_chacha",

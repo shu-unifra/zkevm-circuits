@@ -11,9 +11,9 @@ lazy_static = "1.4"
 ethers = { version = "0.17.0", features = ["ethers-solc"] }
 serde_json = "1.0.66"
 serde = { version = "1.0.130", features = ["derive"] }
-bus-mapping = { path = "../bus-mapping" , features = ["test"] }
-eth-types = { path = "../eth-types" }
-zkevm-circuits = { path = "../zkevm-circuits", default-features = false, features = ["test", "onephase"] }
+bus-mapping = { path = "../bus-mapping" , features = ["test","scroll"] }
+eth-types = { path = "../eth-types", features=["scroll"] }
+zkevm-circuits = { path = "../zkevm-circuits", default-features = false, features = ["test", "onephase","scroll"] }
 tokio = { version = "1.13", features = ["macros", "rt-multi-thread"] }
 url = "2.2.2"
 pretty_assertions = "1.0.0"
@@ -27,6 +27,7 @@ paste = "1.0"
 rand_xorshift = "0.3.0"
 rand_core = "0.6.4"
 mock = { path = "../mock" }
+mpt-zktrie = { path = "../zktrie" }
 
 [dev-dependencies]
 pretty_assertions = "1.0.0"
@@ -37,3 +38,9 @@ rpc = []
 circuit_input_builder = []
 circuits = []
 mock_prover = []
+scroll=["bus-mapping/scroll"]
+
+[[bin]]
+name="runner"
+path="src/bin/runner.rs"
+link_paths = ["/home/shu/zkevm-circuits/target/debug/build/zktrie-65f026e7f717c6b0/out"]

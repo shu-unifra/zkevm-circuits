@@ -800,8 +800,11 @@ impl<P: JsonRpcClient> BuilderClient<P> {
         &self,
         block_num: u64,
     ) -> Result<(EthBlock, Vec<eth_types::GethExecTrace>, Vec<Word>, Word), Error> {
+        log::info!("AAAA get_block_by_number begin {}", block_num);
         let eth_block = self.cli.get_block_by_number(block_num.into()).await?;
+        log::info!("AAAA get_block_by_number end {}", block_num);
         let geth_traces = self.cli.trace_block_by_number(block_num.into()).await?;
+        log::info!("AAAA trace_block_by_number end {}", block_num);
 
         // fetch up to 256 blocks
         let mut n_blocks = 0; // std::cmp::min(256, block_num as usize);
@@ -811,8 +814,10 @@ impl<P: JsonRpcClient> BuilderClient<P> {
         while n_blocks > 0 {
             n_blocks -= 1;
 
+            log::info!("AAAA get_block_by_hash begin hash={}", next_hash);
             // TODO: consider replacing it with `eth_getHeaderByHash`, it's faster
             let header = self.cli.get_block_by_hash(next_hash).await?;
+            log::info!("AAAA get_block_by_hash end hash={}", next_hash);
 
             // set the previous state root
             if prev_state_root.is_none() {
@@ -943,11 +948,17 @@ impl<P: JsonRpcClient> BuilderClient<P> {
         ),
         Error,
     > {
+        log::info!("AAAA get_block begin");
         let (mut eth_block, mut geth_traces, history_hashes, prev_state_root) =
             self.get_block(block_num).await?;
+        log::info!("AAAA get_block done");
+
         let access_set = Self::get_state_accesses(&eth_block, &geth_traces)?;
+        log::info!("AAAA get_state_accesses done");
         let (proofs, codes) = self.get_state(block_num, access_set.into()).await?;
+        log::info!("AAAA get_state done");
         let (state_db, code_db) = Self::build_state_code_db(proofs, codes);
+        log::info!("AAAA build_state_code_db done");
         if eth_block.transactions.len() > self.circuits_params.max_txs {
             log::error!(
                 "max_txs too small: {} < {} for block {}",

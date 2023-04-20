@@ -102,6 +102,11 @@ impl<F: Field> ExecutionGadget<F> for StopGadget<F> {
         call: &Call,
         step: &ExecStep,
     ) -> Result<(), Error> {
+        log::info!("AAAA code_hash={:x}", call.code_hash);
+        for (key, value) in &block.bytecodes {
+            println!("iterator key={:x}, internalHash={:x}", key, value.hash);
+        }
+        
         let code = block
             .bytecodes
             .get(&call.code_hash)
